@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+    <context:component-scan base-package="edu.nf"/>
+
+    <context:property-placeholder location="classpath:db.properties" />
+
+
+    <!-- 集成 hibernate -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="user" value="${user}" />
+        <property name="password" value="${password}" />
+        <property name="jdbcUrl" value="${url}" />
+        <property name="driverClass" value="${driver}" />
+    </bean>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="configLocation" value="classpath:hibernate.cfg.xml" />
+        <property name="packagesToScan" value="edu.nf.entity"/>
+    </bean>
+
+
+
+    <!-- 声明式事务-->
+    <bean id="tx" class="org.springframework.orm.hibernate5.HibernateTransactionManager" p:sessionFactory-ref="sessionFactory" />
+    <tx:annotation-driven proxy-target-class="true" transaction-manager="tx" />
+
+
+    <!-- AspectJ 方式的 AOP 支持 -->
+    <aop:aspectj-autoproxy proxy-target-class="true" />
+
+</beans>
